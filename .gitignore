@@ -1,0 +1,11 @@
+*.o
+*.d
+*.o.lst
+*.map
+*.elf
+*.img
+subdir.mk
+/Debug
+/targetConfigs
+/.settings
+/.launches
