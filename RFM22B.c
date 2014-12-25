@@ -17,11 +17,24 @@ void SetAnt( U8 radio, U8 ant_state );
 
 void InitRfm22( U8 radio )
 {
+	// Variables
+	// Data rate 1 - 128 kbps.
+	static const U32 dataRate = 4800;
+	// Note: upper was 0x27, lower was 0x52.
+	// 0x2752 = 10066, so 4.8kbps.
+	// TX_DR = 10**3 * txdr[15:0]/2**16 in Kbps (if register 70(5) == 0)
+	// Else "	"	"	 21	"	"	"      == 1)
+	
+	static U16 txdr;
+	static U8	txdr_lower;
+	static U8	txdr_upper;
+	
+	
 	//disable all interrupts
 	WriteRegister( radio, RFREG_ENIT_EN_2, 0x00 );
 
 	//enter ready mode (xtal on, PLL off)
-	WriteRegister( radio, RFREG_FUNC_CTRL_1, 0x01 ); //xton
+	WriteRegister( radio, RFREG_FUNC_CTRL_1, txon ); //xton
 
 	//set crystal oscillator load capacitance to 0x7F. (no idea why)
 	WriteRegister( radio, RFREG_LOAD_CAP, 0x7F ); //xlc[6:0]
@@ -30,8 +43,14 @@ void InitRfm22( U8 radio )
 	//data rate below 30 kbps. manchester off. data whitening off.
 	WriteRegister( radio, RFREG_MOD_MODE_CTRL_1, txdtrtscale );
 
+	static const U8	txdr_lower;
+	static const U8	txdr_upper;
 	WriteRegister( radio, RFREG_TX_DATA_RATE_1, 0x27 ); //txdr[15:8]
 	WriteRegister( radio, RFREG_TX_DATA_RATE_0, 0x52 ); //txdr[7:0]
+	
+	static U16 txdr;
+
+
 
 	//set frequency
 	WriteRegister( radio, RFREG_FREQ_BAND_SEL, sbsel | 0x13 );

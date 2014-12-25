@@ -16,8 +16,8 @@
 #define RFREG_INT_STATUS_1						0x03
 #define RFREG_INT_STATUS_2						0x04
 #define RFREG_INT_EN_1							0x05
-#define RFREG_ENIT_EN_2							0x06
-#define RFREG_FUNC_CTRL_1						0x07
+#define RFREG_INT_EN_2							0x06
+#define RFREG_FUNC_CTRL_1						0x07	// 
 #define RFREG_FUNC_CTRL_2						0x08
 #define RFREG_LOAD_CAP							0x09
 #define RFREG_MCU_OUT_CLK						0x0A
@@ -108,7 +108,7 @@
 #define RFREG_AGC_OVERRIDE_2					0x6A
 #define RFREG_GFSO_FIR_COEF_ADDRESS				0x6B
 #define RFREG_GFSK_FIR_COEF_VALUE				0x6C
-#define RFREG_TX_POWER							0x6D
+#define RFREG_TX_POWER						0x6D	// Possible datasheet erratum
 #define RFREG_TX_DATA_RATE_1					0x6E
 #define RFREG_TX_DATA_RATE_0					0x6F
 #define RFREG_MOD_MODE_CTRL_1					0x70
@@ -127,6 +127,21 @@
 #define RFREG_FIFO_ACCESS						0x7F
 
 
+//RFREG_FUNC_CTRL_1, 0x07
+// Description:		Operating Mode and Function Control 1.
+// Register:		07h.
+// Reset value:		0x01
+// All bits are read and write.
+#define swres		( 1 << 7 )	// Software Register Reset Bit.
+#define enlbd		( 1 << 6 )	// Enable Low Battery Detect.
+#define enwt		( 1 << 5 )	// Enable Wake-Up-Timer.
+#define x32ksel		( 1 << 4 )	// 32,768 kHz Crystal Oscillator Select.
+#define txon		( 1 << 3 )	// TX on in Manual Transmit Mode.
+#define rxon		( 1 << 2 )	// RX on in Manual Receiver Mode.
+#define pllon		( 1 << 1 )	// TUNE Mode (PLL is ON).
+#define xton		( 1 << 0 )	// READY Mode (Xtal is ON).
+
+
 //RFREG_DATA_ACCESS_CTRL, 0x30
 #define crc_0_ccitt 0x00
 #define crc_1_crc_16_ibm 0x01
@@ -137,6 +152,32 @@
 #define crcdonly ( 1 << 5 )
 #define lsbfrst ( 1 << 6 )
 #define enpacrx ( 1 << 7 )
+
+
+//RFREG_TX_POWER, 0x6D
+// Description:		TX Power.
+// Register:		6Dh.
+// Reset value:		0x00001010
+// All bits are read and write.
+#define txdr		( 1 << 7 )	// Data Rate .
+
+
+//RFREG_TX_DATA_RATE_1, 0x6E
+// Description:		TX Data Rate 1.
+// Register:		6Eh.
+// Reset value:		0x00001010		// Defaults = 40 kbps.
+// All bits are read and write.
+#define txdr		( 1 << 7 )	// Data Rate .
+
+
+//RFREG_TX_DATA_RATE_0, 0x6F
+// Description:		TX Data Rate 0.
+// Register:		6Fh.
+// Reset value:		0x00001101		// Defaults = 40 kbps.
+// All bits are read and write.
+#define txdr		( 1 << 7 )	// Data Rate Lower Byte.
+
+
 
 //RFREG_MOD_MODE_CTRL_1, 0x70
 #define txdtrtscale ( 1 << 5 ) //This bit should be set for Data Rates below 30 kbps
