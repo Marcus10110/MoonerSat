@@ -19,19 +19,19 @@ void InitRfm22( U8 radio )
 {
 	// Variables
 	// Data rate 1 - 128 kbps.
-	static const U32 dataRate = 4800;
+	const U32 dataRate = 4800;
 	// Note: upper was 0x27, lower was 0x52.
 	// 0x2752 = 10066, so 4.8kbps.
 	// TX_DR = 10**3 * txdr[15:0]/2**16 in Kbps (if register 70(5) == 0)
 	// Else "	"	"	 21	"	"	"      == 1)
 	
-	static U16 txdr;
-	static U8	txdr_lower;
-	static U8	txdr_upper;
+	U16 txdr;
+	U8	txdr_lower;
+	U8	txdr_upper;
 	
 	
 	//disable all interrupts
-	WriteRegister( radio, RFREG_ENIT_EN_2, 0x00 );
+	WriteRegister( radio, RFREG_INT_EN_2, 0x00 );
 
 	//enter ready mode (xtal on, PLL off)
 	WriteRegister( radio, RFREG_FUNC_CTRL_1, txon ); //xton
@@ -43,14 +43,9 @@ void InitRfm22( U8 radio )
 	//data rate below 30 kbps. manchester off. data whitening off.
 	WriteRegister( radio, RFREG_MOD_MODE_CTRL_1, txdtrtscale );
 
-	static const U8	txdr_lower;
-	static const U8	txdr_upper;
 	WriteRegister( radio, RFREG_TX_DATA_RATE_1, 0x27 ); //txdr[15:8]
 	WriteRegister( radio, RFREG_TX_DATA_RATE_0, 0x52 ); //txdr[7:0]
 	
-	static U16 txdr;
-
-
 
 	//set frequency
 	WriteRegister( radio, RFREG_FREQ_BAND_SEL, sbsel | 0x13 );

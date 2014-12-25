@@ -17,7 +17,7 @@
 #define RFREG_INT_STATUS_2						0x04
 #define RFREG_INT_EN_1							0x05
 #define RFREG_INT_EN_2							0x06
-#define RFREG_FUNC_CTRL_1						0x07	// 
+#define RFREG_FUNC_CTRL_1						0x07
 #define RFREG_FUNC_CTRL_2						0x08
 #define RFREG_LOAD_CAP							0x09
 #define RFREG_MCU_OUT_CLK						0x0A
@@ -108,7 +108,7 @@
 #define RFREG_AGC_OVERRIDE_2					0x6A
 #define RFREG_GFSO_FIR_COEF_ADDRESS				0x6B
 #define RFREG_GFSK_FIR_COEF_VALUE				0x6C
-#define RFREG_TX_POWER						0x6D	// Possible datasheet erratum
+#define RFREG_TX_POWER							0x6D	// Possible datasheet erratum
 #define RFREG_TX_DATA_RATE_1					0x6E
 #define RFREG_TX_DATA_RATE_0					0x6F
 #define RFREG_MOD_MODE_CTRL_1					0x70
@@ -159,15 +159,13 @@
 // Register:		6Dh.
 // Reset value:		0x00001010
 // All bits are read and write.
-#define txdr		( 1 << 7 )	// Data Rate .
 
 
 //RFREG_TX_DATA_RATE_1, 0x6E
 // Description:		TX Data Rate 1.
 // Register:		6Eh.
 // Reset value:		0x00001010		// Defaults = 40 kbps.
-// All bits are read and write.
-#define txdr		( 1 << 7 )	// Data Rate .
+
 
 
 //RFREG_TX_DATA_RATE_0, 0x6F
@@ -175,7 +173,6 @@
 // Register:		6Fh.
 // Reset value:		0x00001101		// Defaults = 40 kbps.
 // All bits are read and write.
-#define txdr		( 1 << 7 )	// Data Rate Lower Byte.
 
 
 
