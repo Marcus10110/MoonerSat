@@ -60,15 +60,15 @@ int main(void)
 
     	__delay_cycles( 4000000 );
 
-    	//ConfigReadBackTest( RADIO1 );
+    	SetupRecieveTestPacket( RADIO1 );
 
-    	//__delay_cycles( 80000 );//10ms
+    	__delay_cycles( 80000 );//10ms
 
     	SentTestPacket( RADIO0 );
 
-    	//__delay_cycles( 8000 );//1ms
+    	__delay_cycles( 8000 );//1ms
 
-    	/*for( i = 0; i < 10; ++i)
+    	for( i = 0; i < 10; ++i)
     	{
     		bool success;
     		success = TryRecieveTestPacket( RADIO1 );
@@ -79,7 +79,7 @@ int main(void)
     		__delay_cycles( 8000 ); //1ms
 
 
-    	}*/
+    	}
 
 
 
