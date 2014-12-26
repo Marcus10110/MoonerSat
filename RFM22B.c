@@ -14,20 +14,58 @@ void WriteRegister( U8 radio, U8 address, U8 data );
 U8 ReadRegister( U8 radio, U8 address );
 void SetAnt( U8 radio, U8 ant_state );
 
+U16 computeTX_DR_forDataRate( U32 dataRate_bps ) {
+	U16 txdr = 0x0000;
+	if ( dataRate_bps < 30000 ) { // Use txdtrtscale = 1.
+		txdr = 2**21 * dataRate_bps;
+	} else {
+		txdr = 2**16 * dataRate_bps;
+	}
+	
+	return txdr;
+}
+
+void setRegisters_forDataRate( U32 dataRate_bps ) {
+	U8	txdr_lower = 0x00;
+	U8	txdr_upper = 0x00;
+	U16	temporary = 0x0000;
+	if ( dataRate_bps < 30000 ) { // Use txdtrtscale = 1.
+		WriteRegister( radio, RFREG_MOD_MODE_CTRL_1, txdtrtscale );
+	} else {
+		WriteRegister( radio, RFREG_MOD_MODE_CTRL_1, txdtrtscale );
+	}
+	
+	U16 m_txdr = computeTX_DR_forDataRate( dataRate_bps );
+	temporary = m_txdr;
+	// Decompose, upper byte goes into txdr_upper.
+	temporary = temporary & 0xFF00;
+	temporary = temporary >> 8;
+	txdr_upper = temporary;
+	// Decompose, lower byte goes into txdr_lower.
+	temporary = temporary & 0x00ff;
+	//temporary = temporary >> 8;
+	txdr_lower = temporary;
+	//set data rate
+	//data rate below 30 kbps. manchester off. data whitening off.
+	//WriteRegister( radio, RFREG_TX_DATA_RATE_1, 0x27 ); //txdr[15:8]
+	//WriteRegister( radio, RFREG_TX_DATA_RATE_0, 0x52 ); //txdr[7:0]
+	WriteRegister( radio, RFREG_TX_DATA_RATE_1, txdr_upper ); //txdr[15:8]
+	WriteRegister( radio, RFREG_TX_DATA_RATE_0, txdr_lower ); //txdr[7:0]
+
+	return;
+}
 
 void InitRfm22( U8 radio )
 {
 	// Variables
 	// Data rate 1 - 128 kbps.
-	const U32 dataRate = 4800;
+	const U32 dataRate_bps = 4800;
 	// Note: upper was 0x27, lower was 0x52.
 	// 0x2752 = 10066, so 4.8kbps.
 	// TX_DR = 10**3 * txdr[15:0]/2**16 in Kbps (if register 70(5) == 0)
 	// Else "	"	"	 21	"	"	"      == 1)
 	
-	U16 txdr;
-	U8	txdr_lower;
-	U8	txdr_upper;
+
 	
 	
 	//disable all interrupts
@@ -39,14 +77,16 @@ void InitRfm22( U8 radio )
 	//set crystal oscillator load capacitance to 0x7F. (no idea why)
 	WriteRegister( radio, RFREG_LOAD_CAP, 0x7F ); //xlc[6:0]
 
+	/*
 	//set data rate
 	//data rate below 30 kbps. manchester off. data whitening off.
 	WriteRegister( radio, RFREG_MOD_MODE_CTRL_1, txdtrtscale );
 
 	WriteRegister( radio, RFREG_TX_DATA_RATE_1, 0x27 ); //txdr[15:8]
 	WriteRegister( radio, RFREG_TX_DATA_RATE_0, 0x52 ); //txdr[7:0]
+	*/
+	setRegisters_forDataRate( dataRate_bps );
 	
-
 	//set frequency
 	WriteRegister( radio, RFREG_FREQ_BAND_SEL, sbsel | 0x13 );
 	//fb[4:0] = 0x13 = 19 dec
