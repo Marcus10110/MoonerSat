@@ -32,7 +32,6 @@ static void clock_setup(void)
 {
     /* Enable clocks on all the peripherals we are going to use. */
     rcc_periph_clock_enable(RCC_SPI2);
-    //rcc_periph_clock_enable(RCC_USART1);
     rcc_periph_clock_enable(RCC_GPIOA);
     rcc_periph_clock_enable(RCC_GPIOB);
     rcc_periph_clock_enable(RCC_GPIOC);
@@ -44,6 +43,11 @@ static void spi_setup(void)
             GPIO13 | GPIO14 | GPIO15);
     gpio_set_af(GPIOB, GPIO_AF5, GPIO13 | GPIO14 | GPIO15);
 
+    /* Setup GPIO3 (in GPIO port C) as chip select (active-low). */
+    gpio_set(GPIOB, GPIO12);
+    gpio_mode_setup(GPIOB, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, GPIO12);
+    gpio_set_output_options(GPIOB, GPIO_OTYPE_PP, GPIO_OSPEED_100MHZ, GPIO12);
+
     /* Setup SPI parameters. */
     spi_init_master(SPI2, SPI_CR1_BAUDRATE_FPCLK_DIV_256, SPI_CR1_CPOL,
             SPI_CR1_CPHA, SPI_CR1_DFF_8BIT, SPI_CR1_MSBFIRST);
@@ -51,23 +55,6 @@ static void spi_setup(void)
 
     /* Finally enable the SPI. */
     spi_enable(SPI2);
-}
-
-static void usart_setup(void)
-{
-    gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9);
-    gpio_set_af(GPIOA, GPIO_AF7, GPIO9 | GPIO10);
-
-    /* Setup UART parameters. */
-    usart_set_baudrate(USART1, 9600);
-    usart_set_databits(USART1, 8);
-    usart_set_stopbits(USART1, USART_STOPBITS_1);
-    usart_set_parity(USART1, USART_PARITY_NONE);
-    usart_set_flow_control(USART1, USART_FLOWCONTROL_NONE);
-    usart_set_mode(USART1, USART_MODE_TX);
-
-    /* Finally enable the USART. */
-    usart_enable(USART1);
 }
 
 static void gpio_setup(void)
@@ -78,34 +65,19 @@ static void gpio_setup(void)
     gpio_mode_setup(GPIOC, GPIO_MODE_OUTPUT, GPIO_MODE_OUTPUT, GPIO3);
 }
 
-int _write(int file, char *ptr, int len)
-{
-    int i;
-
-    if (file == 1) {
-        for (i = 0; i < len; i++)
-            usart_send_blocking(USART1, ptr[i]);
-        return i;
-    }
-    errno = EIO;
-    return -1;
-}
-
 int main(void)
 {
     uint8_t counter = 0;
 
     clock_setup();
-    //gpio_setup();
-    //usart_setup();
+    gpio_setup();
     spi_setup();
 
     while (1) {
-        counter++;
-        //printf("Hello, world! %i\r\n", counter);
-        /* Stops RX buffer overflow, but probably not needed. */
-        spi_send(SPI2, counter);
-        //gpio_toggle(GPIOC, GPIO3);
+        for( int i = 0; i < 1025; i++ ) { counter++; } /* Wait grand total +1 */
+        gpio_clear(GPIOB, GPIO12);
+        spi_xfer(SPI2, counter);
+        gpio_set(GPIOB, GPIO12);
     }
 
     return 0;
