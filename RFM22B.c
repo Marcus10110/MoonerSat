@@ -34,7 +34,7 @@ U16 computeTX_DR_forDataRate( U32 dataRate_bps ) {
 	return txdr;
 }
 
-void setRegisters_forDataRate( U8 radio, U32 dataRate_bps ) {
+void SetDataRate( U8 radio, U32 dataRate_bps ) {
 	U8	txdr_lower = 0x00;
 	U8	txdr_upper = 0x00;
 	U16 txdr = 0x0000;
@@ -54,11 +54,55 @@ void setRegisters_forDataRate( U8 radio, U32 dataRate_bps ) {
 	WriteRegister( radio, RFREG_TX_DATA_RATE_0, txdr_lower ); //txdr[7:0]
 }
 
+void SetFrequency( U8 radio, U32 frequency_hz )
+{
+	//this function should have greater than 1khz resolution.
+	U8 hbsel_val = 0;
+	U8 fb = 0;
+	U16 fc = 0;
+	U32 temp = 0;
+	U8 reg = 0;
+
+	if( frequency_hz < 240000000 )
+		return;
+
+	if( frequency_hz > 930000000 )
+		return;
+
+
+	//check if high band should be enabled.
+	if( frequency_hz >= 480000000 )
+		hbsel_val = 1;
+
+	//find fband, integer component.
+	fb = ((frequency_hz-240000000)/10000000);
+
+	if( hbsel == 1 )
+		fb = ((frequency_hz-480000000)/10000000);
+
+
+	//fc = ( frequency_hz / ( 10000000 * (hbsel + 1) ) - fb - 24 ) * 64000;
+	temp = ( 24ul + fb ) * 10000000ul * ( hbsel_val + 1 );
+	temp = frequency_hz - temp;
+	temp = temp * 64;
+	temp = temp / (10000 * (hbsel_val + 1));
+	fc = temp;
+
+	reg = fb | ( hbsel_val << 5 ) | sbsel;
+	WriteRegister( radio, RFREG_FREQ_BAND_SEL, sbsel | reg );
+	WriteRegister( radio, RFREG_NOMINAL_CARRIER_FREQ_1, fc >> 8 ); //fc[15:8]
+	WriteRegister( radio, RFREG_NOMINAL_CARRIER_FREQ_0, fc ); //fc[7:0]
+
+
+
+}
+
 void InitRfm22( U8 radio )
 {
 	// Variables
 	// Data rate 1 - 128 kbps.
-	volatile U32 data_rate_bps = 100000;
+	U32 data_rate_bps = 100000;
+	U32 frequency_hz = 434000000;
 	
 	
 	//disable all interrupts
@@ -78,15 +122,17 @@ void InitRfm22( U8 radio )
 	WriteRegister( radio, RFREG_TX_DATA_RATE_1, 0x27 ); //txdr[15:8]
 	WriteRegister( radio, RFREG_TX_DATA_RATE_0, 0x52 ); //txdr[7:0]
 	*/
-	setRegisters_forDataRate( radio, data_rate_bps );
+	SetDataRate( radio, data_rate_bps );
 	
 	//set frequency
-	WriteRegister( radio, RFREG_FREQ_BAND_SEL, sbsel | 0x13 );
+
+	SetFrequency( radio, frequency_hz );
+	//WriteRegister( radio, RFREG_FREQ_BAND_SEL, sbsel | 0x13 );
 	//fb[4:0] = 0x13 = 19 dec
 	//sbse = 1 (side band select. no idea what it does)
 
-	WriteRegister( radio, RFREG_NOMINAL_CARRIER_FREQ_1, 0x64 ); //fc[15:8]
-	WriteRegister( radio, RFREG_NOMINAL_CARRIER_FREQ_0, 0x00 ); //fc[7:0]
+	//WriteRegister( radio, RFREG_NOMINAL_CARRIER_FREQ_1, 0x64 ); //fc[15:8]
+	//WriteRegister( radio, RFREG_NOMINAL_CARRIER_FREQ_0, 0x00 ); //fc[7:0]
 
 	//enable TX and RX packet handling, and CRC generation. MSB first.
 	WriteRegister( radio, RFREG_DATA_ACCESS_CTRL, enpacrx | crc_0_ccitt | encrc | enpactx );

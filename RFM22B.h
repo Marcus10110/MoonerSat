@@ -221,7 +221,7 @@ void SetupRecieveTestPacket( U8 radio );
 bool TryRecieveTestPacket( U8 radio );
 
 U16 computeTX_DR_forDataRate( U32 dataRate_bps );
-void setRegisters_forDataRate( U8 radio, U32 dataRate_bps );
+void SetDataRate( U8 radio, U32 dataRate_bps );
 
 void ConfigureRxModemSettings( U8 radio, U32 data_rate_bps, U32 frequency_dev_hz );
 
