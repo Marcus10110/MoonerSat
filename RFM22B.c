@@ -194,6 +194,8 @@ void ConfigReadBackTest( U8 radio )
 	ReadRegister( radio, RFREG_TX_HEADER_2 );
 	ReadRegister( radio, RFREG_TX_HEADER_1 );
 	ReadRegister( radio, RFREG_TX_HEADER_0 );
+	ReadRegister( radio, RFREG_TX_DATA_RATE_0 );
+	ReadRegister( radio, RFREG_TX_DATA_RATE_1 );
 
 
 }
@@ -212,10 +214,29 @@ void SentTestPacket( U8 radio )
 
 	WriteRegister(radio, RFREG_PREAMBLE_LEN, 64);	// preamble = 64nibble
 	WriteRegister(radio, RFREG_TX_PACKET_LEN, 17);	// packet length = 17bytes
-	for (i=0; i<17; i++)
-	{
-		WriteRegister(radio, RFREG_FIFO_ACCESS, 'h');	// send payload to the FIFO
-	}
+
+
+	WriteRegister(radio, RFREG_FIFO_ACCESS, 'h');
+	WriteRegister(radio, RFREG_FIFO_ACCESS, 'e');
+	WriteRegister(radio, RFREG_FIFO_ACCESS, 'l');
+	WriteRegister(radio, RFREG_FIFO_ACCESS, 'l');
+	WriteRegister(radio, RFREG_FIFO_ACCESS, 'o');
+	WriteRegister(radio, RFREG_FIFO_ACCESS, ' ');
+	WriteRegister(radio, RFREG_FIFO_ACCESS, 'w');
+	WriteRegister(radio, RFREG_FIFO_ACCESS, 'o');
+	WriteRegister(radio, RFREG_FIFO_ACCESS, 'r');
+	WriteRegister(radio, RFREG_FIFO_ACCESS, 'l');
+	WriteRegister(radio, RFREG_FIFO_ACCESS, 'd');
+	WriteRegister(radio, RFREG_FIFO_ACCESS, '!');
+	WriteRegister(radio, RFREG_FIFO_ACCESS, ' ');
+	WriteRegister(radio, RFREG_FIFO_ACCESS, ' ');
+	WriteRegister(radio, RFREG_FIFO_ACCESS, ' ');
+	WriteRegister(radio, RFREG_FIFO_ACCESS, '1');
+	WriteRegister(radio, RFREG_FIFO_ACCESS, '7');
+	//for (i=0; i<17; i++)
+	//{
+		//WriteRegister(radio, RFREG_FIFO_ACCESS, 'h');	// send payload to the FIFO
+	//}
 
 	WriteRegister(radio, RFREG_INT_EN_1, 0x04);			// enable packet sent interrupt
 	i = ReadRegister(radio, RFREG_INT_STATUS_1);		// Read Interrupt status1 register

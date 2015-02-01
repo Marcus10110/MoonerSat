@@ -58,7 +58,7 @@ int main(void)
 
 		__delay_cycles(1000);*/
 
-    	__delay_cycles( 4000000 );
+    	//__delay_cycles( 4000000 );
 
     	SetupRecieveTestPacket( RADIO1 );
 
