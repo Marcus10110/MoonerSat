@@ -31,11 +31,7 @@ RF1 RXANT	3.4
  */
 
 
-#define RADIO0	0
-#define RADIO1	1
-#define ANT_TX	1
-#define ANT_RX	2
-#define ANT_OFF	3
+
 
 #define RF0_CS_PIN		BIT2
 #define	RF1_CS_PIN		BIT3

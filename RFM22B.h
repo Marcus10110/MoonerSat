@@ -10,6 +10,13 @@
 
 #include "SatTypes.h"
 
+#define RADIO0	0
+#define RADIO1	1
+#define ANT_TX	1
+#define ANT_RX	2
+#define ANT_OFF	3
+
+
 #define RFREG_DEVICE_TYPE						0x00
 #define RFREG_DEVICE_VERSION					0x01
 #define RFREG_DEVICE_STATUS						0x02
@@ -220,8 +227,8 @@ void SetupRecieveTestPacket( U8 radio );
 
 bool TryRecieveTestPacket( U8 radio );
 
-U16 computeTX_DR_forDataRate( U32 dataRate_bps );
-void setRegisters_forDataRate( U8 radio, U32 dataRate_bps );
+U16 ComputeTxRateReg( U32 dataRate_bps );
+void SetDataRate( U8 radio, U32 dataRate_bps );
 
 void ConfigureRxModemSettings( U8 radio, U32 data_rate_bps, U32 frequency_dev_hz );
 
