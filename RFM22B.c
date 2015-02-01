@@ -14,7 +14,8 @@ void WriteRegister( U8 radio, U8 address, U8 data );
 U8 ReadRegister( U8 radio, U8 address );
 void SetAnt( U8 radio, U8 ant_state );
 
-U16 computeTX_DR_forDataRate( U32 dataRate_bps ) {
+U16 ComputeTxRateReg( U32 dataRate_bps )
+{
 	U64 temp = dataRate_bps;
 	U16 txdr = 0;
 	if ( dataRate_bps < 30000 ) { // Use txdtrtscale = 1.
@@ -34,7 +35,8 @@ U16 computeTX_DR_forDataRate( U32 dataRate_bps ) {
 	return txdr;
 }
 
-void SetDataRate( U8 radio, U32 dataRate_bps ) {
+void SetDataRate( U8 radio, U32 dataRate_bps )
+{
 	U8	txdr_lower = 0x00;
 	U8	txdr_upper = 0x00;
 	U16 txdr = 0x0000;
@@ -44,7 +46,7 @@ void SetDataRate( U8 radio, U32 dataRate_bps ) {
 		WriteRegister( radio, RFREG_MOD_MODE_CTRL_1, 0x00 );
 	}
 	
-	txdr = computeTX_DR_forDataRate( dataRate_bps );
+	txdr = ComputeTxRateReg( dataRate_bps );
 	txdr_lower = (U8)txdr;
 	txdr_upper = (U8)( txdr >> 8 );
 	//data rate below 30 kbps. manchester off. data whitening off.
@@ -75,7 +77,7 @@ void SetFrequency( U8 radio, U32 frequency_hz )
 		hbsel_val = 1;
 
 	//find fband, integer component.
-	fb = ((frequency_hz-240000000)/10000000);
+	fb = ((frequency_hz-(240000000 * (hbsel_val + 1)))/10000000);
 
 	if( hbsel == 1 )
 		fb = ((frequency_hz-480000000)/10000000);
@@ -114,29 +116,12 @@ void InitRfm22( U8 radio )
 	//set crystal oscillator load capacitance to 0x7F. (no idea why)
 	WriteRegister( radio, RFREG_LOAD_CAP, 0x7F ); //xlc[6:0]
 
-	/*
-	//set data rate
-	//data rate below 30 kbps. manchester off. data whitening off.
-	WriteRegister( radio, RFREG_MOD_MODE_CTRL_1, txdtrtscale );
-
-	WriteRegister( radio, RFREG_TX_DATA_RATE_1, 0x27 ); //txdr[15:8]
-	WriteRegister( radio, RFREG_TX_DATA_RATE_0, 0x52 ); //txdr[7:0]
-	*/
 	SetDataRate( radio, data_rate_bps );
-	
-	//set frequency
 
 	SetFrequency( radio, frequency_hz );
-	//WriteRegister( radio, RFREG_FREQ_BAND_SEL, sbsel | 0x13 );
-	//fb[4:0] = 0x13 = 19 dec
-	//sbse = 1 (side band select. no idea what it does)
-
-	//WriteRegister( radio, RFREG_NOMINAL_CARRIER_FREQ_1, 0x64 ); //fc[15:8]
-	//WriteRegister( radio, RFREG_NOMINAL_CARRIER_FREQ_0, 0x00 ); //fc[7:0]
 
 	//enable TX and RX packet handling, and CRC generation. MSB first.
 	WriteRegister( radio, RFREG_DATA_ACCESS_CTRL, enpacrx | crc_0_ccitt | encrc | enpactx );
-
 
 
 	//set all header/packet info
@@ -195,7 +180,6 @@ void InitRfm22( U8 radio )
 
 
 	ConfigureRxModemSettings(radio,0,0);
-	//other / unknown
 
 	//IF Bandwidth filter
 
@@ -213,11 +197,6 @@ void InitRfm22( U8 radio )
 	WriteRegister( radio, RFREG_AGC_OVERRIDE_2, 0x0B );
 
 	WriteRegister( radio, RFREG_DELTA_ADC_TUNE_2, 0x04 );
-
-
-
-
-
 
 
 
