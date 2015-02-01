@@ -58,7 +58,7 @@ void InitRfm22( U8 radio )
 {
 	// Variables
 	// Data rate 1 - 128 kbps.
-	volatile U32 dataRate_bps = 4800;
+	volatile U32 data_rate_bps = 100000;
 	
 	
 	//disable all interrupts
@@ -78,7 +78,7 @@ void InitRfm22( U8 radio )
 	WriteRegister( radio, RFREG_TX_DATA_RATE_1, 0x27 ); //txdr[15:8]
 	WriteRegister( radio, RFREG_TX_DATA_RATE_0, 0x52 ); //txdr[7:0]
 	*/
-	setRegisters_forDataRate( radio, dataRate_bps );
+	setRegisters_forDataRate( radio, data_rate_bps );
 	
 	//set frequency
 	WriteRegister( radio, RFREG_FREQ_BAND_SEL, sbsel | 0x13 );
@@ -148,18 +148,11 @@ void InitRfm22( U8 radio )
 
 
 
+	ConfigureRxModemSettings(radio,0,0);
 	//other / unknown
 
 	//IF Bandwidth filter
-	WriteRegister( radio, RFREG_IF_BANDWIDTH, 0x1D );
-	WriteRegister( radio, RFREG_AFC_GEARSHIFT_OVERRIDE, 0x40 );
-	WriteRegister( radio, RFREG_CLK_RECOVERY_OVERSAMPLE_RATIO, 0xA1 );
 
-	WriteRegister( radio, RFREG_CLK_REC_OFFSET_2, 0x20 );
-	WriteRegister( radio, RFREG_CLK_REC_OFFSET_1, 0x4E );
-	WriteRegister( radio, RFREG_CLK_REC_OFFSET_0, 0xA5 );
-	WriteRegister( radio, RFREG_CLK_REC_TIMING_LOOP_GAIN_1, 0x00 );
-	WriteRegister( radio, RFREG_CLK_REC_TIMING_LOOP_GAIN_0, 0x0A );
 
 	WriteRegister( radio, RFREG_MODEM_TEST, 0x01 );
 
@@ -175,7 +168,7 @@ void InitRfm22( U8 radio )
 
 	WriteRegister( radio, RFREG_DELTA_ADC_TUNE_2, 0x04 );
 
-	WriteRegister( radio, RFREG_CLK_RECOVERY_GEARSHIFT_OVERRIDE, 0x03 );
+
 
 
 
@@ -391,4 +384,82 @@ void SetAnt( U8 radio, U8 ant_state )
 			RF1_RXANT_OFF;
 		}
 	}
+}
+
+void ConfigureRxModemSettings( U8 radio, U32 data_rate_bps, U32 frequency_dev_hz )
+{
+
+	//settings from chart for 9600 baud, 45 fdev
+	U8 dwn3_bypass = 0x00;
+	U8 ndec_exp = 0x00;
+	U8 filset = 0x04;
+	U16 rxosr = 0x01A1;
+	U32 ncoff = 0x04EA5;
+	U16 crgain = 0x0024;
+
+	//100kbps/300 fdev
+	dwn3_bypass = 0x01;
+	ndec_exp = 0x00;
+	filset = 0x0E;
+	rxosr = 0x0078;
+	ncoff = 0x11111;
+	crgain = 0x02AD;
+
+	U8 reg = 0;
+	//RFREG_IF_BANDWIDTH (1C)
+	reg = filset;
+	reg |= ndec_exp << 4;
+	reg |= dwn3_bypass << 7;
+	WriteRegister( radio, RFREG_IF_BANDWIDTH, reg );
+
+	//RFREG_CLK_RECOVERY_OVERSAMPLE_RATIO (20)
+	reg = rxosr;
+	WriteRegister( radio, RFREG_CLK_RECOVERY_OVERSAMPLE_RATIO, reg );
+
+	//RFREG_CLK_REC_OFFSET_2(21)
+	reg = ncoff >> 16;
+	reg |= ((rxosr & 0x0700) >> 8) << 5;
+	WriteRegister( radio, RFREG_CLK_REC_OFFSET_2, reg );
+
+	//RFREG_CLK_REC_OFFSET_1 (22)
+	reg = ncoff >> 8;
+	WriteRegister( radio, RFREG_CLK_REC_OFFSET_1, reg );
+
+	//RFREG_CLK_REC_OFFSET_0 (23)
+	reg = ncoff;
+	WriteRegister( radio, RFREG_CLK_REC_OFFSET_0, reg );
+
+	//RFREG_CLK_REC_TIMING_LOOP_GAIN_1 (24)
+	reg = crgain >> 8;
+	WriteRegister( radio, RFREG_CLK_REC_TIMING_LOOP_GAIN_1, reg );
+
+	//RFREG_CLK_REC_TIMING_LOOP_GAIN_0 (25)
+	reg = crgain;
+	WriteRegister( radio, RFREG_CLK_REC_TIMING_LOOP_GAIN_0, reg );
+
+	//WriteRegister( radio, RFREG_IF_BANDWIDTH, 0x1D );
+	WriteRegister( radio, RFREG_AFC_GEARSHIFT_OVERRIDE, 0x40 );
+	WriteRegister( radio, RFREG_CLK_RECOVERY_GEARSHIFT_OVERRIDE, 0x03 );
+	//WriteRegister( radio, RFREG_CLK_RECOVERY_OVERSAMPLE_RATIO, 0xA1 );
+
+	//WriteRegister( radio, RFREG_CLK_REC_OFFSET_2, 0x20 );
+	//WriteRegister( radio, RFREG_CLK_REC_OFFSET_1, 0x4E );
+	//WriteRegister( radio, RFREG_CLK_REC_OFFSET_0, 0xA5 );
+	//WriteRegister( radio, RFREG_CLK_REC_TIMING_LOOP_GAIN_1, 0x00 );
+	//WriteRegister( radio, RFREG_CLK_REC_TIMING_LOOP_GAIN_0, 0x0A );
+
+
+
+	//original values from 4800 bps.
+
+	/* WriteRegister( radio, RFREG_IF_BANDWIDTH, 0x1D );
+	WriteRegister( radio, RFREG_AFC_GEARSHIFT_OVERRIDE, 0x40 );
+	WriteRegister( radio, RFREG_CLK_RECOVERY_GEARSHIFT_OVERRIDE, 0x03 );
+	WriteRegister( radio, RFREG_CLK_RECOVERY_OVERSAMPLE_RATIO, 0xA1 );
+
+	WriteRegister( radio, RFREG_CLK_REC_OFFSET_2, 0x20 );
+	WriteRegister( radio, RFREG_CLK_REC_OFFSET_1, 0x4E );
+	WriteRegister( radio, RFREG_CLK_REC_OFFSET_0, 0xA5 );
+	WriteRegister( radio, RFREG_CLK_REC_TIMING_LOOP_GAIN_1, 0x00 );
+	WriteRegister( radio, RFREG_CLK_REC_TIMING_LOOP_GAIN_0, 0x0A );*/
 }
