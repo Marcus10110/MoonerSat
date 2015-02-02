@@ -25,11 +25,12 @@
 #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/rcc.h>
-
-int _write(int file, char *ptr, int len);
+#include "systick.h"
 
 static void clock_setup(void)
 {
+    rcc_clock_setup_hse_3v3(&hse_8mhz_3v3[CLOCK_3V3_168MHZ]);
+
     /* Enable clocks on all the peripherals we are going to use. */
     rcc_periph_clock_enable(RCC_SPI2);
     rcc_periph_clock_enable(RCC_GPIOA);
@@ -72,12 +73,14 @@ int main(void)
     clock_setup();
     gpio_setup();
     spi_setup();
+    systick_setup();
 
     while (1) {
-        for( int i = 0; i < 1025; i++ ) { counter++; } /* Wait grand total +1 */
+        counter++;
         gpio_clear(GPIOB, GPIO12);
         spi_xfer(SPI2, counter);
         gpio_set(GPIOB, GPIO12);
+        msleep(1);
     }
 
     return 0;
