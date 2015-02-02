@@ -103,7 +103,7 @@ void InitRfm22( U8 radio )
 {
 	// Variables
 	// Data rate 1 - 128 kbps.
-	U32 data_rate_bps = 100000;
+	U32 data_rate_bps = 9600;//100000;
 	U32 frequency_hz = 434000000;
 	
 	
@@ -232,7 +232,7 @@ void SentTestPacket( U8 radio )
 	WriteRegister( radio, RFREG_FUNC_CTRL_1, xton);	// To ready mode
 
 	SetAnt( radio, ANT_TX );
-	__delay_cycles( 50000 * 8 );
+	msleep( 50 );
 
 	WriteRegister( radio, RFREG_FUNC_CTRL_2, 0x03 );	// FIFO reset
 	WriteRegister( radio, RFREG_FUNC_CTRL_2, 0x00 );	// Clear FIFO
@@ -276,7 +276,7 @@ void SentTestPacket( U8 radio )
 	{
 		U8 status;
 
-		__delay_cycles( 80000 ); //10ms
+		msleep( 10 ); //10ms
 
 		status = ReadRegister( radio, RFREG_INT_STATUS_1 );
 		if( ( status & (1 << 2) ) != 0 )
@@ -297,7 +297,7 @@ void SetupRecieveTestPacket( U8 radio )
 	U8 i;
 
 	SetAnt( radio, ANT_RX );
-	__delay_cycles( 50000 * 8 );
+	msleep( 50 );
 
 	WriteRegister( radio, RFREG_FUNC_CTRL_1, xton );	// to ready mode
 
@@ -347,20 +347,20 @@ void WriteRegister( U8 radio, U8 address, U8 data )
 	else if( radio == RADIO1 )
 		RF1_CS_ON;
 
-	__delay_cycles(80);
+	usleep(10);
 
 	ReadWriteSpi( address );
 
 	ReadWriteSpi( data );
 
-	__delay_cycles(80);
+	usleep( 10 );
 
 	if( radio == RADIO0 )
 		RF0_CS_OFF;
 	else if( radio == RADIO1 )
 		RF1_CS_OFF;
 
-	__delay_cycles(400);
+	usleep( 50 );
 
 }
 
@@ -374,20 +374,20 @@ U8 ReadRegister( U8 radio, U8 address )
 	else if( radio == RADIO1 )
 		RF1_CS_ON;
 
-	__delay_cycles(80);
+	usleep(10);
 
 	ReadWriteSpi( address );
 
 	rx_data = ReadWriteSpi( 0x00 );
 
-	__delay_cycles(80);
+	usleep( 10 );
 
 	if( radio == RADIO0 )
 		RF0_CS_OFF;
 	else if( radio == RADIO1 )
 		RF1_CS_OFF;
 
-	__delay_cycles(400);
+	usleep(50);
 
 	return rx_data;
 }
@@ -444,12 +444,12 @@ void ConfigureRxModemSettings( U8 radio, U32 data_rate_bps, U32 frequency_dev_hz
 	U16 crgain = 0x0024;
 
 	//100kbps/300 fdev
-	dwn3_bypass = 0x01;
+	/*dwn3_bypass = 0x01;
 	ndec_exp = 0x00;
 	filset = 0x0E;
 	rxosr = 0x0078;
 	ncoff = 0x11111;
-	crgain = 0x02AD;
+	crgain = 0x02AD;*/
 
 	U8 reg = 0;
 	//RFREG_IF_BANDWIDTH (1C)
@@ -509,3 +509,4 @@ void ConfigureRxModemSettings( U8 radio, U32 data_rate_bps, U32 frequency_dev_hz
 	WriteRegister( radio, RFREG_CLK_REC_TIMING_LOOP_GAIN_1, 0x00 );
 	WriteRegister( radio, RFREG_CLK_REC_TIMING_LOOP_GAIN_0, 0x0A );*/
 }
+

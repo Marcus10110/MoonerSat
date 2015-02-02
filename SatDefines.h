@@ -31,7 +31,8 @@ RF1 RXANT	3.4
  */
 
 
-
+#define msleep(x)   __delay_cycles( x * 8000 )
+#define usleep(x)   __delay_cycles( x * 8 )
 
 #define RF0_CS_PIN		BIT2
 #define	RF1_CS_PIN		BIT3
