@@ -9,3 +9,4 @@ subdir.mk
 /targetConfigs
 /.settings
 /.launches
+stm32/main.hex

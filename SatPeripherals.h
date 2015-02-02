@@ -10,8 +10,8 @@
 
 #include "SatTypes.h"
 
-void InitIo();
-void InitSpi();
+void InitIo(void);
+void InitSpi(void);
 U8 ReadWriteSpi( U8 tx_data );
 
 
