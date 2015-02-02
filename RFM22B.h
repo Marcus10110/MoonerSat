@@ -233,4 +233,10 @@ void SetDataRate( U8 radio, U32 dataRate_bps );
 void ConfigureRxModemSettings( U8 radio, U32 data_rate_bps, U32 frequency_dev_hz );
 
 
+
+//void msleep( U16 ms );
+
+//void usleep( U16 us );
+
+
 #endif /* RFM22B_H_ */
