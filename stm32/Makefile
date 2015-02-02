@@ -1,5 +1,5 @@
 # stm32 makefile
-BINARY = stm32
+BINARY = main
 #OBJS = ../RFM22B.o systick.o
 OBJS = systick.o
 CFLAGS += -std=c99 -I../
