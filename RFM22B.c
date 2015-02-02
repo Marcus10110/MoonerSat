@@ -7,8 +7,13 @@
 
 #include "RFM22B.h"
 #include "SatPeripherals.h"
-#include "SatDefines.h"
+#include "SatTypes.h"
 
+#ifdef USE_STM32
+#include "systick.h"
+// WTF: What a Terrible Failure  (TODO: fix this)
+#include "Stm32SatDefines.h"
+#endif
 
 void WriteRegister( U8 radio, U8 address, U8 data );
 U8 ReadRegister( U8 radio, U8 address );
@@ -294,16 +299,14 @@ void SentTestPacket( U8 radio )
 
 void SetupRecieveTestPacket( U8 radio )
 {
-	U8 i;
-
 	SetAnt( radio, ANT_RX );
 	msleep( 50 );
 
 	WriteRegister( radio, RFREG_FUNC_CTRL_1, xton );	// to ready mode
 
 	//clear interrupts.
-	i = ReadRegister( radio, RFREG_INT_STATUS_1);
-	i = ReadRegister( radio, RFREG_INT_STATUS_2);
+	ReadRegister( radio, RFREG_INT_STATUS_1);
+	ReadRegister( radio, RFREG_INT_STATUS_2);
 
 	WriteRegister( radio, RFREG_RX_FIFO_CTRL, 17);//rx fifo almost full threshold set to 17.
 
@@ -318,7 +321,7 @@ void SetupRecieveTestPacket( U8 radio )
 
 }
 
-bool TryRecieveTestPacket( U8 radio )
+U8 TryRecieveTestPacket( U8 radio )
 {
 	//check register for interrupt. if a valid packet is not RXed, return false.
 	U8 status;
@@ -342,10 +345,11 @@ void WriteRegister( U8 radio, U8 address, U8 data )
 	address |= 0x80;
 
 
-	if( radio == RADIO0 )
+	if( radio == RADIO0 ) {
 		RF0_CS_ON;
-	else if( radio == RADIO1 )
+        } else if( radio == RADIO1 ) {
 		RF1_CS_ON;
+        }
 
 	usleep(10);
 
@@ -355,10 +359,11 @@ void WriteRegister( U8 radio, U8 address, U8 data )
 
 	usleep( 10 );
 
-	if( radio == RADIO0 )
+	if( radio == RADIO0 ) {
 		RF0_CS_OFF;
-	else if( radio == RADIO1 )
+        } else if( radio == RADIO1 ) {
 		RF1_CS_OFF;
+        }
 
 	usleep( 50 );
 
@@ -369,10 +374,11 @@ U8 ReadRegister( U8 radio, U8 address )
 	U8 rx_data;
 	address &= ~0x80; //just in case
 
-	if( radio == RADIO0 )
+	if( radio == RADIO0 ) {
 		RF0_CS_ON;
-	else if( radio == RADIO1 )
+        } else if( radio == RADIO1 ) {
 		RF1_CS_ON;
+        }
 
 	usleep(10);
 
@@ -382,10 +388,11 @@ U8 ReadRegister( U8 radio, U8 address )
 
 	usleep( 10 );
 
-	if( radio == RADIO0 )
+	if( radio == RADIO0 ) {
 		RF0_CS_OFF;
-	else if( radio == RADIO1 )
+        } else if( radio == RADIO1 ) {
 		RF1_CS_OFF;
+        }
 
 	usleep(50);
 
@@ -434,6 +441,8 @@ void SetAnt( U8 radio, U8 ant_state )
 
 void ConfigureRxModemSettings( U8 radio, U32 data_rate_bps, U32 frequency_dev_hz )
 {
+        (void) data_rate_bps; // unused
+        (void) frequency_dev_hz; // unused
 
 	//settings from chart for 9600 baud, 45 fdev
 	U8 dwn3_bypass = 0x00;

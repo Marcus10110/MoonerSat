@@ -46,6 +46,13 @@ void msleep(uint32_t delay)
 	while (wake > system_millis);
 }
 
+/* HACK HACK HACKITY HACK */
+void usleep(uint32_t barf)
+{
+    (void) barf;
+    msleep(1);
+}
+
 /* Set up a timer to create 1mS ticks. */
 void systick_setup(void)
 {

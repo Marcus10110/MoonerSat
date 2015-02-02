@@ -221,11 +221,10 @@ void ConfigReadBackTest( U8 radio );
 
 void SentTestPacket( U8 radio );
 
-
+U8 TryRecieveTestPacket( U8 radio );
 
 void SetupRecieveTestPacket( U8 radio );
 
-bool TryRecieveTestPacket( U8 radio );
 
 U16 ComputeTxRateReg( U32 dataRate_bps );
 void SetDataRate( U8 radio, U32 dataRate_bps );
@@ -238,5 +237,6 @@ void ConfigureRxModemSettings( U8 radio, U32 data_rate_bps, U32 frequency_dev_hz
 
 //void usleep( U16 us );
 
+void SetFrequency( U8 radio, U32 frequency_hz );
 
 #endif /* RFM22B_H_ */
