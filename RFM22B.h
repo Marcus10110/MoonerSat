@@ -9,12 +9,9 @@
 #define RFM22B_H_
 
 #include "SatTypes.h"
+#include "spi.h"
+#include "gpio.h"
 
-#define RADIO0	0
-#define RADIO1	1
-#define ANT_TX	1
-#define ANT_RX	2
-#define ANT_OFF	3
 
 
 #define RFREG_DEVICE_TYPE						0x00
@@ -215,6 +212,66 @@
 
 
 
+typedef struct {
+	spi_t *Spi;
+	gpio_t *TxAntPin;
+	gpio_t *RxAntPin;
+} rfm22b_t;
+
+typedef enum {
+   RFM_ERR_SPI, // err in spi module
+   RFM_ERR_PIN, // err in pin module
+   RFM_ERR_OVERRUN,
+   RFM_ERR_INVALID,
+   RFM_OK
+} rfm_err_t;
+
+typedef enum {
+	BAUD_2K_FDEV_5K,
+	BAUD_2_4K_FDEV_4_8K,
+	BAUD_2_4K_FDEV_36K,
+	BAUD_4_8K_FDEV_4_8K,
+	BAUD_4_8K_FDEV_45K,
+	BAUD_9_6K_FDEV_4_8K,
+	BAUD_9_6K_FDEV_45K,
+	BAUD_10K_FDEV_5K,
+	BAUD_10K_FDEV_40K,
+	BAUD_19_2K_FDEV_9_6K,
+	BAUD_20K_FDEV_10K,
+	BAUD_20K_FDEV_40K,
+	BAUD_38_4K_FDEV_19_6K,
+	BAUD_40K_FDEV_20K,
+	BAUD_40K_FDEV_40K,
+	BAUD_50K_FDEV_25K,
+	BAUD_57_6K_FDEV_28_8K,
+	BAUD_100K_FDEV_50K,
+	BAUD_100K_FDEV_300K,
+	BAUD_125K_FDEV_125K
+} rfm_modem_speed_t;
+
+
+typedef enum {
+	ANT_OFF,
+	ANT_TX,
+	ANT_RX
+
+
+} rfm_antenna_state_t;
+
+
+rfm_err_t rfm_setup();
+rfm_err_t rfm_init( rfm22b_t *rfm, spi_t *spi, gpio_t *tx_pin, gpio_t *rx_pin );
+
+rfm_err_t rfm_set_baud( rfm22b_t *rfm, rfm_modem_speed_t data_rate );
+rfm_err_t rfm_set_frequency( rfm22b_t *rfm, U32 frequency_hz );
+rfm_err_t rfm_set_power( rfm22b_t *rfm, U8 tx_power_dbm );
+rfm_err_t rfm_tx_data( rfm22b_t *rfm, U8* data, U8 count );
+rfm_err_t rfm_is_data_availible( rfm22b_t *rfm, bool *has_data );
+rfm_err_t rfm_rx_data( rfm22b_t *rfm, U8 *data, U8 buffer_max_length );
+rfm_err_t rfm_start_rx( rfm22b_t *rfm );
+
+
+/*
 void InitRfm22( U8 radio );
 
 void ConfigReadBackTest( U8 radio );
@@ -230,13 +287,9 @@ bool TryRecieveTestPacket( U8 radio );
 U16 ComputeTxRateReg( U32 dataRate_bps );
 void SetDataRate( U8 radio, U32 dataRate_bps );
 
-void ConfigureRxModemSettings( U8 radio, U32 data_rate_bps, U32 frequency_dev_hz );
+void ConfigureModemSettings( U8 radio, ModemSpeed modem_speed );
+*/
 
-
-
-//void msleep( U16 ms );
-
-//void usleep( U16 us );
 
 
 #endif /* RFM22B_H_ */

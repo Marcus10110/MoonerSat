@@ -30,8 +30,13 @@ RF1 RXANT	3.4
  *
  */
 
+#define P1_BASE_ADD		((void*)(P1_BASE))
+#define P2_BASE_ADD		((void*)(P1_BASE+1))
+#define P3_BASE_ADD		((void*)(P3_BASE))
+#define P4_BASE_ADD		((void*)(P3_BASE+1))
 
-#define msleep(x)   __delay_cycles( x * 8000 )
+
+#define msleep(x)   __delay_cycles( x * 8 )
 #define usleep(x)   __delay_cycles( x * 8 )
 
 #define RF0_CS_PIN		BIT2
@@ -41,12 +46,12 @@ RF1 RXANT	3.4
 #define RF1_TXANT_PIN	BIT0
 #define RF1_RXANT_PIN	BIT4
 
-#define RF0_CS_PORT		P1OUT
-#define RF1_CS_PORT		P1OUT
-#define RF0_TXANT_PORT	P1OUT
-#define RF0_RXANT_PORT	P1OUT
-#define RF1_TXANT_PORT	P3OUT
-#define RF1_RXANT_PORT	P3OUT
+#define RF0_CS_PORT		P1_BASE_ADD
+#define RF1_CS_PORT		P1_BASE_ADD
+#define RF0_TXANT_PORT	P1_BASE_ADD
+#define RF0_RXANT_PORT	P1_BASE_ADD
+#define RF1_TXANT_PORT	P3_BASE_ADD
+#define RF1_RXANT_PORT	P3_BASE_ADD
 
 #define MISO_PIN		BIT7
 #define MOSI_PIN		BIT6
@@ -54,24 +59,9 @@ RF1 RXANT	3.4
 
 
 //CS active low
-#define RF0_CS_ON	RF0_CS_PORT &= ~RF0_CS_PIN
-#define RF0_CS_OFF		RF0_CS_PORT |= RF0_CS_PIN
-
-#define RF1_CS_ON	RF1_CS_PORT &= ~RF1_CS_PIN
-#define RF1_CS_OFF		RF1_CS_PORT |= RF1_CS_PIN
 
 //ant ctrl active high
-#define RF0_RXANT_ON	RF0_RXANT_PORT |= RF0_RXANT_PIN
-#define RF0_RXANT_OFF	RF0_RXANT_PORT &= ~RF0_RXANT_PIN
 
-#define RF1_RXANT_ON	RF1_RXANT_PORT |= RF1_RXANT_PIN
-#define RF1_RXANT_OFF	RF1_RXANT_PORT &= ~RF1_RXANT_PIN
-
-#define RF0_TXANT_ON	RF0_TXANT_PORT |= RF0_TXANT_PIN
-#define RF0_TXANT_OFF	RF0_TXANT_PORT &= ~RF0_TXANT_PIN
-
-#define RF1_TXANT_ON	RF1_TXANT_PORT |= RF1_TXANT_PIN
-#define RF1_TXANT_OFF	RF1_TXANT_PORT &= ~RF1_TXANT_PIN
 
 
 
