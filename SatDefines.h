@@ -53,11 +53,23 @@ RF1 RXANT	3.4
 #define RF1_TXANT_PORT	P3_BASE_ADD
 #define RF1_RXANT_PORT	P3_BASE_ADD
 
-#define MISO_PIN		BIT7
-#define MOSI_PIN		BIT6
-#define CLK_PIN			BIT2
+#define UCB0_MISO_PIN		BIT7	//1.7
+#define UCB0_MOSI_PIN		BIT6	//1.6
+#define UCB0_CLK_PIN		BIT2	//2.2
 
+#define UCA1_MISO_PIN		BIT6	//2.6
+#define UCA1_MOSI_PIN		BIT5	//2.5
+#define UCA1_CLK_PIN		BIT4	//2.4
 
+#define UCA0_MISO_PIN		BIT1	//2.1
+#define UCA0_MOSI_PIN		BIT0	//2.0
+#define UCA0_CLK_PIN		BIT5	//1.5
+
+#define SDA_PIN				BIT6	//1.6
+#define CSL_PIN				BIT7	//1.7
+
+#define UART_TX_PIN			BIT0	//2.0
+#define UART_RX_PIN			BIT1	//2.1
 //CS active low
 
 //ant ctrl active high

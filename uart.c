@@ -7,6 +7,7 @@
 
 
 #include "uart.h"
+#include "SatDefines.h"
 #include <msp430.h>
 
 
@@ -17,10 +18,16 @@ uart_err_t uart_setup()
 
 uart_err_t uart_init( uart_t *uart )
 {
+	P2SEL0 &= ~( UART_TX_PIN | UART_RX_PIN );
+	P2SEL1 |= UART_TX_PIN | UART_RX_PIN;
+
+
 	//A0 for now, this is the 'backchannel' port.
 	UCA0CTLW0 = UCSWRST;
 	//LSB first, no parity, 8 bit, one stop bit, UART, async, SMCLK, IE off.
-	UCA0CTLW0 |= UCSSEL1;
+	UCA0CTLW0 |= UCSSEL__SMCLK;
+
+	UCA0BRW = 833;
 
 	UCA0CTLW0 &= ~UCSWRST;
 
@@ -33,12 +40,12 @@ uart_err_t uart_set_baud( uart_t *uart, U16 baud )
 
 	U16 count = temp / baud;
 
-	UCA0CTLW0 |= UCSWRST;
+	//UCA0CTLW0 |= UCSWRST;
 
 	//baud rate calculation.
-	UCA0BRW = count;
+	//UCA0BRW = count;
 
-	UCA0CTLW0 &= ~UCSWRST;
+	//UCA0CTLW0 &= ~UCSWRST;
 
 	return UART_OK;
 }
@@ -46,7 +53,7 @@ uart_err_t uart_set_baud( uart_t *uart, U16 baud )
 uart_err_t uart_write_byte( uart_t *uart, U8 value )
 {
 	//wait for buffer to be empty
-	while( ( UCA0IFG & UCTXCPTIFG ) == 0 );
+	while( ( UCA0IFG & UCTXIFG ) == 0 );
 
 
 	UCA0TXBUF = value;
