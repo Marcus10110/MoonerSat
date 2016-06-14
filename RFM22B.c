@@ -16,10 +16,13 @@ void SetAnt( U8 radio, U8 ant_state );
 
 U16 computeTX_DR_forDataRate( U32 dataRate_bps ) {
 	U16 txdr = 0x0000;
-	if ( dataRate_bps < 30000 ) { // Use txdtrtscale = 1.
-		txdr = 2**21 * dataRate_bps;
-	} else {
-		txdr = 2**16 * dataRate_bps;
+	U32 intermediateResult = 0;
+	if ( dataRate_bps < 30000 ) {	// Use txdtrtscale = 1.
+		intermediateResult = dataRate_bps * 2^21;
+		txdr = (U16)(intermediateResult / 10^6);
+	} else {						// Use txdtrtscale = 0.
+		intermediateResult = dataRate_bps * 2^16;
+		txdr = (U16)(intermediateResult / 10^6);
 	}
 	
 	return txdr;
@@ -29,10 +32,10 @@ void setRegisters_forDataRate( U32 dataRate_bps ) {
 	U8	txdr_lower = 0x00;
 	U8	txdr_upper = 0x00;
 	U16	temporary = 0x0000;
-	if ( dataRate_bps < 30000 ) { // Use txdtrtscale = 1.
+	if ( dataRate_bps < 30000 ) {	// Use txdtrtscale = 1.
 		WriteRegister( radio, RFREG_MOD_MODE_CTRL_1, txdtrtscale );
-	} else {
-		WriteRegister( radio, RFREG_MOD_MODE_CTRL_1, txdtrtscale );
+	} else {						// Use txdtrtscale = 0.
+		WriteRegister( radio, RFREG_MOD_MODE_CTRL_1, 0x00 );
 	}
 	
 	U16 m_txdr = computeTX_DR_forDataRate( dataRate_bps );
@@ -46,14 +49,49 @@ void setRegisters_forDataRate( U32 dataRate_bps ) {
 	//temporary = temporary >> 8;
 	txdr_lower = temporary;
 	//set data rate
-	//data rate below 30 kbps. manchester off. data whitening off.
-	//WriteRegister( radio, RFREG_TX_DATA_RATE_1, 0x27 ); //txdr[15:8]
-	//WriteRegister( radio, RFREG_TX_DATA_RATE_0, 0x52 ); //txdr[7:0]
 	WriteRegister( radio, RFREG_TX_DATA_RATE_1, txdr_upper ); //txdr[15:8]
 	WriteRegister( radio, RFREG_TX_DATA_RATE_0, txdr_lower ); //txdr[7:0]
 
 	return;
 }
+
+void setRegisters_forFrequency( U32 frequency_hertz ) {
+	U32 fb_compute = 0;
+	bool hbsel = 0;
+	U16 fc = 0x0000;
+	// Set fb[4:0] value.
+	if( frequency_hertz < 240000000 || frequency_hertz > 930000000 )	// Check for invalid frequency selection.
+	{
+		frequency_hertz = 0;		// Let it error out later, no harm done.
+		return;
+	}
+	fb_compute = frequency_hertz - 240000000;	// Starts at 240 MHz.
+	fb_compute = fb_compute / 1000000;		// Yeilds an integer in the range 0 - 47.
+	if( fb_compute > 23 )
+	{	// Only values between 0 and 23 are valid.
+		fb_compute = fb_compute - 23;
+		// TODO: Need to turn on high band select flag here!
+		hbsel = 1;
+	}
+	
+	// Set fc[15:0] value.
+	
+	
+	
+	
+	
+	
+	
+	
+	//WriteRegister( radio, RFREG_FREQ_BAND_SEL, sbsel | 0x13 );
+	WriteRegister( radio, RFREG_FREQ_BAND_SEL, sbsel | fb_compute );
+	//fb[4:0] = 0x13 = 19 dec, 430 - 439.9 MHz
+	//sbse = 1 (side band select. no idea what it does)
+
+	
+	return;
+}
+	
 
 void InitRfm22( U8 radio )
 {
@@ -65,6 +103,7 @@ void InitRfm22( U8 radio )
 	// TX_DR = 10**3 * txdr[15:0]/2**16 in Kbps (if register 70(5) == 0)
 	// Else "	"	"	 21	"	"	"      == 1)
 	
+	const U32 frequency_hertz = 434000000;
 
 	
 	
@@ -87,11 +126,14 @@ void InitRfm22( U8 radio )
 	*/
 	setRegisters_forDataRate( dataRate_bps );
 	
-	//set frequency
-	WriteRegister( radio, RFREG_FREQ_BAND_SEL, sbsel | 0x13 );
-	//fb[4:0] = 0x13 = 19 dec
-	//sbse = 1 (side band select. no idea what it does)
-
+	
+	
+	void setRegisters_forFrequency( U32 frequency_hertz ) {
+		
+		
+		
+		
+		
 	WriteRegister( radio, RFREG_NOMINAL_CARRIER_FREQ_1, 0x64 ); //fc[15:8]
 	WriteRegister( radio, RFREG_NOMINAL_CARRIER_FREQ_0, 0x00 ); //fc[7:0]
 

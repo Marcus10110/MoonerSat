@@ -219,5 +219,6 @@ bool TryRecieveTestPacket( U8 radio );
 U16 computeTX_DR_forDataRate( U32 dataRate_bps );
 void setRegisters_forDataRate( U32 dataRate_bps );
 
+void setRegisters_forFrequency( U32 frequency_hertz );
 
 #endif /* RFM22B_H_ */
